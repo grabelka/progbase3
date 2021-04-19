@@ -101,6 +101,36 @@ namespace ConsoleApp
                     WriteLine("You can't use this name.");
                 }
             }
+            else if(com[1] == "random")
+            {
+                if (Int32.TryParse(com[2], out int n))
+                {
+                    Random r = new Random();
+                    string[] moderator = {"no", "no", "yes"};
+                    string[] passwords = {"123456", "123123", "password", "1234pass", "pass666", "87654321", "12344321", "696969", "aurora", "qwerty"};
+                    for(int i = 0; i < n; i ++)
+                    {
+                        string name = "";
+                        for (int j = 0; j < r.Next(1, 6); j++)
+                        {
+                            name += Convert.ToString((char)r.Next(97,123));
+                        }
+                        for (int j = 0; j < r.Next(4); j++)
+                        {
+                            name += Convert.ToString(r.Next(0,10));
+                        }
+                        try
+                        {
+                            userRepository.Insert(new User(0, name, moderator[r.Next(0,3)], passwords[r.Next(0,10)]));
+                        }
+                        catch (System.Exception)
+                        {
+                            Console.WriteLine($"iteration [{i}]: Here was a colision");
+                        }
+                    }
+                }
+                else WriteLine(com[2] + " isn't a number");
+            }
             else
             {
                 WriteLine("Command doesn't exist. Please try again.");
@@ -155,6 +185,17 @@ namespace ConsoleApp
                 else
                     WriteLine("This question doesn't exist");
             }
+            else if(com[1] == "random")
+            {
+                if (Int32.TryParse(com[2], out int n))
+                {
+                    for(int i = 0; i < n; i ++)
+                    {
+                        
+                    }
+                }
+                else WriteLine(com[2] + " isn't a number");
+            }
             else
             {
                 WriteLine("Command doesn't exist. Please try again.");
@@ -208,7 +249,20 @@ namespace ConsoleApp
                     WriteLine("Answer was updated");
                 else
                     WriteLine("This answer doesn't exist");
-            }      
+            } 
+            else if(com[1] == "random")
+            {
+                if (Int32.TryParse(com[2], out int n))
+                {
+                    for(int i = 0; i < n; i ++)
+                    {}
+                }
+                else WriteLine(com[2] + " isn't a number");
+            } 
+            else
+            {
+                WriteLine("Command doesn't exist. Please try again.");
+            }    
         }
     }
 }
