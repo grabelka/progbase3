@@ -189,9 +189,28 @@ namespace ConsoleApp
             {
                 if (Int32.TryParse(com[2], out int n))
                 {
-                    for(int i = 0; i < n; i ++)
+                    try
                     {
-                        
+                        Write("Print a user's ids gap: \t");
+                        string users = ReadLine();
+                        string[] ids = users.Split('-');
+                        Write("Print a time gap: \t");
+                        string gap = ReadLine();
+                        string[] dt = gap.Split('-');
+                        DateTime minDt = Convert.ToDateTime(dt[0]);
+                        DateTime maxDt = Convert.ToDateTime(dt[1]);
+                        Random r = new Random();
+                        string [] titles = File.ReadAllLines(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\generator\title.txt");
+                        string [] texts = File.ReadAllLines(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\generator\text.txt");
+                        int range = ((TimeSpan)(maxDt - minDt)).Days;
+                        for(int i = 0; i < n; i ++)
+                        {
+                            questionRepository.Insert(new Question(0, r.Next(Convert.ToInt32(ids[0]), Convert.ToInt32(ids[1]) + 1), titles[r.Next(0, titles.Length)], texts[r.Next(0, texts.Length)], minDt.AddDays(r.Next(range))));
+                        }
+                    }
+                    catch (System.Exception)
+                    {
+                        WriteLine("Wrong input");
                     }
                 }
                 else WriteLine(com[2] + " isn't a number");
@@ -254,8 +273,28 @@ namespace ConsoleApp
             {
                 if (Int32.TryParse(com[2], out int n))
                 {
-                    for(int i = 0; i < n; i ++)
-                    {}
+                    try
+                    {
+                        Write("Print a question's ids gap: \t");
+                        string users = ReadLine();
+                        string[] ids = users.Split('-');
+                        Write("Print a time gap: \t");
+                        string gap = ReadLine();
+                        string[] dt = gap.Split('-');
+                        DateTime minDt = Convert.ToDateTime(dt[0]);
+                        DateTime maxDt = Convert.ToDateTime(dt[1]);
+                        Random r = new Random();
+                        string [] answers = File.ReadAllLines(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\generator\answer.txt");
+                        int range = ((TimeSpan)(maxDt - minDt)).Days;
+                        for(int i = 0; i < n; i ++)
+                        {
+                            answerRepository.Insert(new Answer(0, r.Next(Convert.ToInt32(ids[0]), Convert.ToInt32(ids[1]) + 1), answers[r.Next(0, answers.Length)], minDt.AddDays(r.Next(range)), "no"));
+                        }
+                    }
+                    catch (System.Exception)
+                    {
+                        WriteLine("Wrong input");
+                    }
                 }
                 else WriteLine(com[2] + " isn't a number");
             } 
