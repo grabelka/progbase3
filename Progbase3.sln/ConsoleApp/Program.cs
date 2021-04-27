@@ -64,33 +64,33 @@ namespace ConsoleApp
             else if(com[1] == "insert")
             {
                 string[] userFields = com[2].Split(',');
-                if(userFields.Length != 3)
+                if(userFields.Length != 4)
                 {
                     WriteLine("Wrong user's paramethers");
                     return;
                 }
                 try
                 {
-                    User user = new User(userFields[0], userFields[1], userFields[2]);
+                    User user = new User(0, userFields[0], userFields[1], userFields[2], userFields[3], new Question[0]);
                     WriteLine($"User was added with id [{userRepository.Insert(user)}]");
                 }
                 catch (System.Exception)
                 {
-                    WriteLine("You can't use this name.");
+                    WriteLine("You can't use this login.");
                 }
             }
             else if(com[1] == "update")
             {
                 string[] userFields = com[2].Split(',');
                 int n = 0;
-                if(userFields.Length != 4 || !Int32.TryParse(userFields[0], out n))
+                if(userFields.Length != 5 || !Int32.TryParse(userFields[0], out n))
                 {
                     WriteLine("Wrong user's paramethers");
                     return;
                 }
                 try
                 {
-                    User user = new User(n, userFields[1], userFields[2], userFields[3]);
+                    User user = new User(n, userFields[1], userFields[2], userFields[3], userFields[4], new Question[0]);
                     if (userRepository.Update(user) == 1) 
                         WriteLine("User was updated");
                     else
@@ -108,20 +108,21 @@ namespace ConsoleApp
                     Random r = new Random();
                     string[] moderator = {"no", "no", "yes"};
                     string[] passwords = {"123456", "123123", "password", "1234pass", "pass666", "87654321", "12344321", "696969", "aurora", "qwerty"};
+                    string[] names = {"Ivan Ivanenko", "Katya Adushkina", "Vlad A4", "Vasya Pupkin", "Danya Milokhin", "Crazy Frog", "Anonim User"};
                     for(int i = 0; i < n; i ++)
                     {
-                        string name = "";
+                        string login = "";
                         for (int j = 0; j < r.Next(1, 6); j++)
                         {
-                            name += Convert.ToString((char)r.Next(97,123));
+                            login += Convert.ToString((char)r.Next(97,123));
                         }
                         for (int j = 0; j < r.Next(4); j++)
                         {
-                            name += Convert.ToString(r.Next(0,10));
+                            login += Convert.ToString(r.Next(0,10));
                         }
                         try
                         {
-                            userRepository.Insert(new User(0, name, moderator[r.Next(0,3)], passwords[r.Next(0,10)]));
+                            userRepository.Insert(new User(0, names[r.Next(0,7)], login, moderator[r.Next(0,3)], passwords[r.Next(0,10)], new Question[0]));
                         }
                         catch (System.Exception)
                         {
@@ -165,7 +166,7 @@ namespace ConsoleApp
                     WriteLine("Wrong question's paramethers");
                     return;
                 }
-                Question q = new Question(0, uId, qFields[1], qFields[2], date);
+                Question q = new Question(0, uId, qFields[1], qFields[2], date, null, null);
                 WriteLine($"Question was added with id [{questionRepository.Insert(q)}]");
             }
             else if(com[1] == "update")
@@ -179,7 +180,7 @@ namespace ConsoleApp
                     WriteLine("Wrong question's paramethers");
                     return;
                 }
-                Question q = new Question(id, uId, qFields[2], qFields[3], date);
+                Question q = new Question(id, uId, qFields[2], qFields[3], date, null, null);
                 if (questionRepository.Update(q) == 1) 
                     WriteLine("Question was updated");
                 else
@@ -205,13 +206,28 @@ namespace ConsoleApp
                         int range = ((TimeSpan)(maxDt - minDt)).Days;
                         for(int i = 0; i < n; i ++)
                         {
-                            questionRepository.Insert(new Question(0, r.Next(Convert.ToInt32(ids[0]), Convert.ToInt32(ids[1]) + 1), titles[r.Next(0, titles.Length)], texts[r.Next(0, texts.Length)], minDt.AddDays(r.Next(range))));
+                            questionRepository.Insert(new Question(0, r.Next(Convert.ToInt32(ids[0]), Convert.ToInt32(ids[1]) + 1), titles[r.Next(0, titles.Length)], texts[r.Next(0, texts.Length)], minDt.AddDays(r.Next(range)), null, null));
                         }
                     }
                     catch (System.Exception)
                     {
                         WriteLine("Wrong input");
                     }
+                }
+                else WriteLine(com[2] + " isn't a number");
+            }
+            else if (com[1] == "getAllQuestions")
+            {
+                if (Int32.TryParse(com[2], out int n))
+                {
+                    Question[] questions = questionRepository.GetAllQuestions(n);
+                    if (questions.Length > 0) 
+                        foreach(Question q in questions)
+                        {
+                            WriteLine(q.ToString());
+                        }
+                    else
+                        WriteLine("This user doesn't have any questions");
                 }
                 else WriteLine(com[2] + " isn't a number");
             }
@@ -249,7 +265,7 @@ namespace ConsoleApp
                     WriteLine("Wrong question's paramethers");
                     return;
                 }
-                Answer a = new Answer(0, qId, aFields[1], date, aFields[3]);
+                Answer a = new Answer(0, qId, aFields[1], date, aFields[3], null);
                 WriteLine($"Answer was added with id [{answerRepository.Insert(a)}]");
             }
             else if(com[1] == "update")
@@ -263,7 +279,7 @@ namespace ConsoleApp
                     WriteLine("Wrong question's paramethers");
                     return;
                 }
-                Answer a = new Answer(id, qId, aFields[2], date, aFields[4]);
+                Answer a = new Answer(id, qId, aFields[2], date, aFields[4], null);
                 if (answerRepository.Update(a) == 1) 
                     WriteLine("Answer was updated");
                 else
@@ -288,7 +304,7 @@ namespace ConsoleApp
                         int range = ((TimeSpan)(maxDt - minDt)).Days;
                         for(int i = 0; i < n; i ++)
                         {
-                            answerRepository.Insert(new Answer(0, r.Next(Convert.ToInt32(ids[0]), Convert.ToInt32(ids[1]) + 1), answers[r.Next(0, answers.Length)], minDt.AddDays(r.Next(range)), "no"));
+                            answerRepository.Insert(new Answer(0, r.Next(Convert.ToInt32(ids[0]), Convert.ToInt32(ids[1]) + 1), answers[r.Next(0, answers.Length)], minDt.AddDays(r.Next(range)), "no", null));
                         }
                     }
                     catch (System.Exception)
@@ -298,6 +314,21 @@ namespace ConsoleApp
                 }
                 else WriteLine(com[2] + " isn't a number");
             } 
+            else if (com[1] == "getAllAnswers")
+            {
+                if (Int32.TryParse(com[2], out int n))
+                {
+                    Answer[] answers = answerRepository.GetAllAnswers(n);
+                    if (answers.Length > 0) 
+                        foreach(Answer a in answers)
+                        {
+                            WriteLine(a.ToString());
+                        }
+                    else
+                        WriteLine("This question doesn't have any questions");
+                }
+                else WriteLine(com[2] + " isn't a number");
+            }
             else
             {
                 WriteLine("Command doesn't exist. Please try again.");

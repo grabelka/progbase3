@@ -3,25 +3,23 @@ using System;
 public class User
 {
     public int id;
+    public string login;
     public string name;
     public string isModerator;
     public string password;
-    public User(int id, string name, string isModerator, string password)
+    public Question[] questions;
+
+    public User(int id, string name, string login, string isModerator, string password, Question[] questions)
     {
         this.id = id;
+        this.login = login;
         this.name = name;
         this.isModerator = isModerator;
         this.password = password;
-    }
-    public User(string name, string isModerator, string password)
-    {
-        this.id = 0;
-        this.name = name;
-        this.isModerator = isModerator;
-        this.password = password;
+        this.questions = questions;
     }
     public override string ToString()
     {
-        return $"[{id}] - {name}, moderator: {isModerator}";
+        return $"[{id}] - {name} ({login}), moderator: {isModerator}";
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.Sqlite;
 using System.Text;
 using System.IO;
@@ -39,7 +40,7 @@ public class AnswerRepository
         SqliteDataReader reader = command.ExecuteReader();
         if (reader.Read())
         {
-            Answer answer = new Answer(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), DateTime.Parse(reader.GetString(3)), reader.GetString(4));
+            Answer answer = new Answer(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), DateTime.Parse(reader.GetString(3)), reader.GetString(4), null);
             reader.Close();
             connection.Close();
             return answer;
@@ -76,5 +77,23 @@ public class AnswerRepository
         int n = command.ExecuteNonQuery();
         connection.Close(); 
         return n;
+    }
+    public Answer[] GetAllAnswers(int id)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM answers WHERE q_id = $id";
+        command.Parameters.AddWithValue("$id", id);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Answer> list = new List<Answer>();
+        while (reader.Read())
+        {
+            Answer answer = new Answer(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), DateTime.Parse(reader.GetString(3)), reader.GetString(4), null);
+            list.Add(answer);
+        }
+        Answer[] answers = list.ToArray();
+        reader.Close();
+        connection.Close();
+        return answers;
     }
 }

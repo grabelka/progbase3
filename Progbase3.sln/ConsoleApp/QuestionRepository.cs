@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using System.Text;
 using System.IO;
 using static System.Console;
+using System.Collections.Generic;
 
 public class QuestionRepository
 {
@@ -39,7 +40,7 @@ public class QuestionRepository
         SqliteDataReader reader = command.ExecuteReader();
         if (reader.Read())
         {
-            Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)));
+            Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)), null, null);
             reader.Close();
             connection.Close();
             return question;
@@ -76,5 +77,82 @@ public class QuestionRepository
         int n = command.ExecuteNonQuery();
         connection.Close(); 
         return n;
+    }
+    public Question[] GetAllQuestions(int id)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM questions WHERE user_id = $id";
+        command.Parameters.AddWithValue("$id", id);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Question> list = new List<Question>();
+        while (reader.Read())
+        {
+            Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)), null, null);
+            list.Add(question);
+        }
+        Question[] questions = list.ToArray();
+        reader.Close();
+        connection.Close();
+        return questions;
+    }
+    public Question[] GetExportPinned(string start, string end)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM questions, answers WHERE questions.id = answers.q_id AND questions.created > $start AND questions.created < $end AND answers.pinned = 'yes'";
+        command.Parameters.AddWithValue("$start", start);
+        command.Parameters.AddWithValue("$end", end);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Question> list = new List<Question>();
+        while (reader.Read())
+        {
+            List<Answer> listAnswer = new List<Answer>();
+            Answer answer = new Answer(Int32.Parse(reader.GetString(5)), Int32.Parse(reader.GetString(6)), reader.GetString(7), DateTime.Parse(reader.GetString(8)), reader.GetString(9), null);
+            listAnswer.Add(answer);
+            Answer[] answers = listAnswer.ToArray();
+            Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)), null, answers);
+            list.Add(question);
+        }
+        Question[] questions = list.ToArray();
+        reader.Close();
+        connection.Close();
+        return questions;
+    }
+    public int GetImagePinned(string start, string end)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM questions, answers WHERE questions.id = answers.q_id AND questions.created > $start AND questions.created < $end AND answers.pinned = 'yes'";
+        command.Parameters.AddWithValue("$start", start);
+        command.Parameters.AddWithValue("$end", end);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Question> list = new List<Question>();
+        while (reader.Read())
+        {
+            Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)), null, null);
+            list.Add(question);
+        }
+        reader.Close();
+        connection.Close();
+        return list.Count;
+    }
+    public int GetImageAll(string start, string end)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM questions WHERE created > $start AND created < $end";
+        command.Parameters.AddWithValue("$start", start);
+        command.Parameters.AddWithValue("$end", end);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Question> list = new List<Question>();
+        while (reader.Read())
+        {
+            Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)), null, null);
+            list.Add(question);
+        }
+        reader.Close();
+        connection.Close();
+        return list.Count;
     }
 }
