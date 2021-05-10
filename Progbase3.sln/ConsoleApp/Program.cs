@@ -2,45 +2,193 @@
 using Microsoft.Data.Sqlite;
 using System.Text;
 using System.IO;
+using Terminal.Gui;
 using static System.Console;
 
 namespace ConsoleApp
 {
     class Program
     {
+        static string dbPath = @"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\data.db";
+        static SqliteConnection connection = new SqliteConnection($"Data Source={dbPath}");
+        static UserRepository userRepository = new UserRepository(connection);
+        static QuestionRepository questionRepository = new QuestionRepository(connection);
+        static AnswerRepository answerRepository = new AnswerRepository(connection);
+        static ListView tasksListView;
+        static Label page;
+        static Label totalPages;
         static void Main(string[] args)
         {
-            string dbPath = @"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\data.db";
-            SqliteConnection connection = new SqliteConnection($"Data Source={dbPath}");
-            UserRepository userRepository = new UserRepository(connection);
-            QuestionRepository questionRepository = new QuestionRepository(connection);
-            AnswerRepository answerRepository = new AnswerRepository(connection);
-            while(true)
+            Application.Init();
+            OnButtonUsersClicked();
+            Application.Run();
+            // while(true)
+            // {
+            //     WriteLine("Print a table name, a command and a value: ");
+            //     string read = ReadLine();
+            //     string[] com = read.Split(' ');
+            //     if(com[0] == "exit")
+            //     {
+            //         break;
+            //     }
+            //     else if(com.Length != 3)
+            //     {
+            //         WriteLine("Not enought args");
+            //     }
+            //     if (com[0] == "users")
+            //     {
+            //         UserHandler(com, userRepository);
+            //     }
+            //     else if (com[0] == "questions")
+            //     {
+            //         QuestionHandler(com, questionRepository);
+            //     }
+            //     else if (com[0] == "answers")
+            //     {
+            //         AnswerHandler(com, answerRepository);
+            //     }
+            // }
+        }
+        static void OnButtonUsersClicked()
+        {
+            Toplevel top = Application.Top;
+            top.RemoveAll();
+            MenuBar menu = new MenuBar(new MenuBarItem[] {
+                new MenuBarItem ("File", new MenuItem [] {
+                    new MenuItem ("Import", "", OnButtonClicked),
+                    new MenuItem ("Export", "", OnButtonClicked),
+                    new MenuItem ("Exit", "", OnExit),
+                }),
+                new MenuBarItem ("Help", new MenuItem [] {
+                    new MenuItem ("About", "", OnAbout),
+                }),
+            });
+            Window win = new Window("Users")
             {
-                WriteLine("Print a table name, a command and a value: ");
-                string read = ReadLine();
-                string[] com = read.Split(' ');
-                if(com[0] == "exit")
-                {
-                    break;
-                }
-                else if(com.Length != 3)
-                {
-                    WriteLine("Not enought args");
-                }
-                if (com[0] == "users")
-                {
-                    UserHandler(com, userRepository);
-                }
-                else if (com[0] == "questions")
-                {
-                    QuestionHandler(com, questionRepository);
-                }
-                else if (com[0] == "answers")
-                {
-                    AnswerHandler(com, answerRepository);
-                }
-            }
+                X = 0,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill() - 1
+            };
+            top.Add(menu, win);
+            Button btnq = new Button(1, 1, "Go to questions");
+            btnq.Clicked += OnButtonQuestionsClicked;
+            Button btna = new Button(20, 1, "Go to answers");
+            btna.Clicked += OnButtonAnswersClicked;
+            win.Add(btnq, btna);
+            Rect frame = new Rect(4, 8, top.Frame.Width, 200);
+            // if (repository.GetTotalPages() < 1) 
+            // {
+            //     List<string> list = new List<string>();
+            //     list.Add("Data Base is empty");
+            //     tasksListView = new ListView(frame, list);
+            // }
+            // else
+            // {
+            //     tasksListView = new ListView(frame, repository.GetPage(1));
+            //     tasksListView.OpenSelectedItem += OnOpenTask;
+            // }
+            //win.Add(tasksListView);
+
+            Button btn = new Button(1, 2, "Create new task");
+            btn.Clicked += OnCreateUserClicked;
+            win.Add(btn);
+            Button prew = new Button(5, 20, "Prew");
+            //prew.Clicked += OnPrewClicked;
+            page = new Label(14, 20, "1");
+            win.Add(prew, page);
+            Button next = new Button(20, 20, "Next");
+            //next.Clicked += OnNextClicked;
+            totalPages = new Label(17, 20, Convert.ToString(7));
+            win.Add(next, totalPages);
+            Application.Run();
+        }
+        static void OnCreateUserClicked()
+        {
+            // CreateTaskDialog dialog = new CreateTaskDialog();
+            // Application.Run(dialog);
+            // if(!dialog.canceled)
+            // {
+            //     Task task = dialog.GetTask();
+            //     int newId = repository.Insert(task);
+            //     tasksListView.SetSource(repository.GetPage(repository.GetTotalPages()));
+            //     page.Text = Convert.ToString(repository.GetTotalPages());
+            //     totalPages.Text = Convert.ToString(repository.GetTotalPages());
+            // }
+        }
+        static void OnButtonQuestionsClicked()
+        {
+            Toplevel top = Application.Top;
+            top.RemoveAll();
+            MenuBar menu = new MenuBar(new MenuBarItem[] {
+                new MenuBarItem ("File", new MenuItem [] {
+                    new MenuItem ("Import", "", OnButtonClicked),
+                    new MenuItem ("Export", "", OnButtonClicked),
+                    new MenuItem ("Exit", "", OnExit),
+                }),
+                new MenuBarItem ("Help", new MenuItem [] {
+                    new MenuItem ("About", "", OnAbout),
+                }),
+            });
+            Window win = new Window("Questions")
+            {
+                X = 0,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill() - 1
+            };
+            top.Add(menu, win);
+            Button btnu = new Button(1, 1, "Go to users");
+            btnu.Clicked += OnButtonUsersClicked;
+            Button btna = new Button(20, 1, "Go to answers");
+            btna.Clicked += OnButtonAnswersClicked;
+            win.Add(btnu, btna);
+            Application.Run();
+        }
+        static void OnButtonAnswersClicked()
+        {
+            Toplevel top = Application.Top;
+            top.RemoveAll();
+            MenuBar menu = new MenuBar(new MenuBarItem[] {
+                new MenuBarItem ("File", new MenuItem [] {
+                    new MenuItem ("Import", "", OnButtonClicked),
+                    new MenuItem ("Export", "", OnButtonClicked),
+                    new MenuItem ("Exit", "", OnExit),
+                }),
+                new MenuBarItem ("Help", new MenuItem [] {
+                    new MenuItem ("About", "", OnAbout),
+                }),
+            });
+            Window win = new Window("Answers")
+            {
+                X = 0,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill() - 1
+            };
+            top.Add(menu, win);
+            Button btnu = new Button(1, 1, "Go to users");
+            btnu.Clicked += OnButtonUsersClicked;
+            Button btnq = new Button(20, 1, "Go to questions");
+            btnq.Clicked += OnButtonQuestionsClicked;
+            win.Add(btnu, btnq);
+            Application.Run();
+        }
+        static void OnButtonClicked()
+        {
+            OpenDialog dialog = new OpenDialog("Open XML", "Open");
+            dialog.CanChooseDirectories = true;
+            dialog.CanChooseFiles = false;
+            Application.Run(dialog);
+            //dialog.filePath
+        }
+        static void OnAbout()
+        {
+            MessageBox.Query("_About", "Program version 1.0... Author: Anastasia Grabovska", "Ok");
+        }
+        static void OnExit()
+        {
+            Application.RequestStop();
         }
         static void UserHandler(string[] com, UserRepository userRepository)
         {

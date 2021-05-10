@@ -96,7 +96,7 @@ public class QuestionRepository
         connection.Close();
         return questions;
     }
-    public Question[] GetExportPinned(string start, string end)
+    public List<Question> GetExportPinned(string start, string end)
     {
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
@@ -114,10 +114,9 @@ public class QuestionRepository
             Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)), null, answers);
             list.Add(question);
         }
-        Question[] questions = list.ToArray();
         reader.Close();
         connection.Close();
-        return questions;
+        return list;
     }
     public int GetImagePinned(string start, string end)
     {

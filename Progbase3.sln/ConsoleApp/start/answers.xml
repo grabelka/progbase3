@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RootAnswers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <answers>
+    <ExportAnswer>
+      <id>2</id>
+      <questionId>21</questionId>
+      <text>Even I faced the same problem. The problem was with the file format. Simply save the file in ANSI...</text>
+      <created>2021-02-06T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>8</id>
+      <questionId>35</questionId>
+      <text>When you use pageChange an Ajax request will be made to that url and it will be loaded only the c...</text>
+      <created>2021-03-02T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>14</id>
+      <questionId>24</questionId>
+      <text>It sounds like this can and should be done with CSS, but you might've left out an important bit. ...</text>
+      <created>2021-04-04T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>19</id>
+      <questionId>14</questionId>
+      <text>&lt;code&gt;rtb.Text += labName + collectionDate + Environment.NewLine; &lt;/code&gt;&lt;/p&gt; &lt;p...</text>
+      <created>2021-03-23T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>24</id>
+      <questionId>7</questionId>
+      <text>I asked this question on MSDN and was told it was not possible. I believe</text>
+      <created>2021-02-20T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>25</id>
+      <questionId>38</questionId>
+      <text>You may use this approach:&lt;/p&gt; &lt;pre&gt;&lt;code&gt;var str = "This field must be {{minLength}} characters...</text>
+      <created>2021-03-27T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+  </answers>
+</RootAnswers>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RootQuestions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <questions>
+    <ExportQuestion>
+      <id>21</id>
+      <userId>80</userId>
+      <title>Proxy Pass not working in local apache server</title>
+      <text>I would like to access the address of the end of the bss section in my code and do operations wit...</text>
+      <created>2021-04-05T00:00:00</created>
+    </ExportQuestion>
+    <ExportQuestion>
+      <id>35</id>
+      <userId>47</userId>
+      <title>Launch4j exe no http requests?</title>
+      <text>I’ve got an Angular CLI app and am testing it with Karma and Jasmine. I’ve added Firebase and wan...</text>
+      <created>2020-11-18T00:00:00</created>
+    </ExportQuestion>
+    <ExportQuestion>
+      <id>24</id>
+      <userId>68</userId>
+      <title>Can't autowire a ScoreManager in optaplanner while using a custom solver xml configuration</title>
+      <text>The code below is my Haskell code how will it look like if I have to turn it in</text>
+      <created>2021-04-22T00:00:00</created>
+    </ExportQuestion>
+    <ExportQuestion>
+      <id>14</id>
+      <userId>59</userId>
+      <title>Flutter Stream video from camera connect via BT</title>
+      <text>as I am new to wsn please can anyone tell me that whether or not can we use rpl and leach protoco...</text>
+      <created>2020-12-16T00:00:00</created>
+    </ExportQuestion>
+    <ExportQuestion>
+      <id>7</id>
+      <userId>4</userId>
+      <title>Is is possible to do a recursive query using alasql?</title>
+      <text>I am hosting a server on a private computer with limited memory (32GB). I would like to load a fa...</text>
+      <created>2021-05-02T00:08:43</created>
+    </ExportQuestion>
+    <ExportQuestion>
+      <id>38</id>
+      <userId>87</userId>
+      <title>Save network interfaces on EKS node for pods occupying less CPU and Memory Resources</title>
+      <text>I am hosting a server on a private computer with limited memory (32GB). I would like to load a fa...</text>
+      <created>2021-02-13T00:00:00</created>
+    </ExportQuestion>
+  </questions>
+</RootQuestions>
