@@ -8,6 +8,7 @@ public static class Import
 {
     public static void Read(string file1, string file2, QuestionRepository questionRepository, AnswerRepository answerRepository)
     {
+        if(!File.Exists(file1) || !File.Exists(file2)) return;
         List<ExportQuestion> questions = ReadQuestions(file1).questions;
         foreach(ExportQuestion item in questions)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Data.Sqlite;
 using System.Text;
 using System.IO;
@@ -14,7 +15,7 @@ namespace ConsoleApp
         static UserRepository userRepository = new UserRepository(connection);
         static QuestionRepository questionRepository = new QuestionRepository(connection);
         static AnswerRepository answerRepository = new AnswerRepository(connection);
-        static ListView tasksListView;
+        static ListView usersListView;
         static Label page;
         static Label totalPages;
         static void Main(string[] args)
@@ -55,8 +56,8 @@ namespace ConsoleApp
             top.RemoveAll();
             MenuBar menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("File", new MenuItem [] {
-                    new MenuItem ("Import", "", OnButtonClicked),
-                    new MenuItem ("Export", "", OnButtonClicked),
+                    new MenuItem ("Import", "", OnImportClicked),
+                    new MenuItem ("Export", "", OnExportClicked),
                     new MenuItem ("Exit", "", OnExit),
                 }),
                 new MenuBarItem ("Help", new MenuItem [] {
@@ -77,53 +78,109 @@ namespace ConsoleApp
             btna.Clicked += OnButtonAnswersClicked;
             win.Add(btnq, btna);
             Rect frame = new Rect(4, 8, top.Frame.Width, 200);
-            // if (repository.GetTotalPages() < 1) 
-            // {
-            //     List<string> list = new List<string>();
-            //     list.Add("Data Base is empty");
-            //     tasksListView = new ListView(frame, list);
-            // }
-            // else
-            // {
-            //     tasksListView = new ListView(frame, repository.GetPage(1));
-            //     tasksListView.OpenSelectedItem += OnOpenTask;
-            // }
-            //win.Add(tasksListView);
+            if (userRepository.GetTotalPages() < 1) 
+            {
+                List<string> list = new List<string>();
+                list.Add("Data Base is empty");
+                usersListView = new ListView(frame, list);
+            }
+            else
+            {
+                usersListView = new ListView(frame, userRepository.GetPage(1));
+                usersListView.OpenSelectedItem += OnOpenUser;
+            }
+            win.Add(usersListView);
 
-            Button btn = new Button(1, 2, "Create new task");
+            Button btn = new Button(1, 4, "Create new user");
             btn.Clicked += OnCreateUserClicked;
             win.Add(btn);
             Button prew = new Button(5, 20, "Prew");
-            //prew.Clicked += OnPrewClicked;
-            page = new Label(14, 20, "1");
+            prew.Clicked += OnPrewUsersClicked;
+            page = new Label(14, 20, "1 ");
             win.Add(prew, page);
             Button next = new Button(20, 20, "Next");
-            //next.Clicked += OnNextClicked;
-            totalPages = new Label(17, 20, Convert.ToString(7));
+            next.Clicked += OnNextUsersClicked;
+            totalPages = new Label(17, 20, Convert.ToString(userRepository.GetTotalPages()) + " ");
             win.Add(next, totalPages);
             Application.Run();
         }
+        static void OnPrewUsersClicked()
+        {
+            int n = Int32.Parse(Convert.ToString(page.Text));
+            if (n > 1)
+            {
+                n--;
+                page.Text = Convert.ToString(n);
+                usersListView.SetSource(userRepository.GetPage(n));
+            }
+        }
+        static void OnNextUsersClicked()
+        {
+            int n = Int32.Parse(Convert.ToString(page.Text));
+            if (n < userRepository.GetTotalPages())
+            {
+                n++;
+                page.Text = Convert.ToString(n);
+                usersListView.SetSource(userRepository.GetPage(n));
+            }
+        }
+        static void OnOpenUser(ListViewItemEventArgs args)
+        {
+            User user = (User)args.Value;
+            OpenUserDialog dialog = new OpenUserDialog();
+            dialog.SetUser(user);
+            Application.Run(dialog);
+            if (dialog.deleted)
+            {
+                int pageNumber = Int32.Parse(Convert.ToString(page.Text));
+                userRepository.DeleteById(user.id);
+                int total = userRepository.GetTotalPages();
+                if (pageNumber > total) pageNumber = total;
+                if (total < 1) 
+                {
+                    List<string> list = new List<string>();
+                    list.Add("Data Base is empty");
+                    usersListView.SetSource(list);
+                }
+                else
+                {
+                    usersListView.SetSource(userRepository.GetPage(pageNumber));
+                }
+                page.Text = Convert.ToString(pageNumber);
+                totalPages.Text = Convert.ToString(total);
+            }
+            if (dialog.updated)
+            {
+                int userId = user.id;
+                int pageNumber = userId/10;
+                if(userId % 10 != 0) pageNumber++;
+                user = dialog.GetUser();
+                userRepository.Update(userId, user);
+                usersListView.SetSource(userRepository.GetPage(pageNumber));
+            }
+        }
         static void OnCreateUserClicked()
         {
-            // CreateTaskDialog dialog = new CreateTaskDialog();
-            // Application.Run(dialog);
-            // if(!dialog.canceled)
-            // {
-            //     Task task = dialog.GetTask();
-            //     int newId = repository.Insert(task);
-            //     tasksListView.SetSource(repository.GetPage(repository.GetTotalPages()));
-            //     page.Text = Convert.ToString(repository.GetTotalPages());
-            //     totalPages.Text = Convert.ToString(repository.GetTotalPages());
-            // }
+            CreateUserDialog dialog = new CreateUserDialog();
+            Application.Run(dialog);
+            if(!dialog.canceled)
+            {
+                User user = dialog.GetUser();
+                userRepository.Insert(user);
+                usersListView.SetSource(userRepository.GetPage(userRepository.GetTotalPages()));
+                page.Text = Convert.ToString(userRepository.GetTotalPages());
+                totalPages.Text = Convert.ToString(userRepository.GetTotalPages());
+            }
         }
+
         static void OnButtonQuestionsClicked()
         {
             Toplevel top = Application.Top;
             top.RemoveAll();
             MenuBar menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("File", new MenuItem [] {
-                    new MenuItem ("Import", "", OnButtonClicked),
-                    new MenuItem ("Export", "", OnButtonClicked),
+                    new MenuItem ("Import", "", OnImportClicked),
+                    new MenuItem ("Export", "", OnExportClicked),
                     new MenuItem ("Exit", "", OnExit),
                 }),
                 new MenuBarItem ("Help", new MenuItem [] {
@@ -151,8 +208,8 @@ namespace ConsoleApp
             top.RemoveAll();
             MenuBar menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("File", new MenuItem [] {
-                    new MenuItem ("Import", "", OnButtonClicked),
-                    new MenuItem ("Export", "", OnButtonClicked),
+                    new MenuItem ("Import", "", OnImportClicked),
+                    new MenuItem ("Export", "", OnExportClicked),
                     new MenuItem ("Exit", "", OnExit),
                 }),
                 new MenuBarItem ("Help", new MenuItem [] {
@@ -174,13 +231,38 @@ namespace ConsoleApp
             win.Add(btnu, btnq);
             Application.Run();
         }
-        static void OnButtonClicked()
+        static void OnImportClicked()
         {
-            OpenDialog dialog = new OpenDialog("Open XML", "Open");
-            dialog.CanChooseDirectories = true;
-            dialog.CanChooseFiles = false;
+            ImportDialog dialog = new ImportDialog();
             Application.Run(dialog);
-            //dialog.filePath
+            if(!dialog.cancaled)
+            {
+                if (dialog.path != "")
+                {
+                    Import.Read(dialog.path + @"\questions.xml", dialog.path + @"\answers.xml", questionRepository, answerRepository);
+                }
+                else
+                {
+                    MessageBox.Query("Error", "Path was not selected", "Ok");
+                }
+            }
+
+        }
+        static void OnExportClicked()
+        {
+            ExportDialog dialog = new ExportDialog();
+            Application.Run(dialog);
+            if(!dialog.cancaled)
+            {
+                if (dialog.path != "")
+                {
+                    Export.Write(questionRepository.GetExportPinned(dialog.start, dialog.end), dialog.path+ @"\file.zip");
+                }
+                else
+                {
+                    MessageBox.Query("Error", "Path was not selected", "Ok");
+                }
+            }
         }
         static void OnAbout()
         {
