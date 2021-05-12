@@ -16,6 +16,8 @@ namespace ConsoleApp
         static QuestionRepository questionRepository = new QuestionRepository(connection);
         static AnswerRepository answerRepository = new AnswerRepository(connection);
         static ListView usersListView;
+        static ListView questionsListView;
+        static ListView answersListView;
         static Label page;
         static Label totalPages;
         static void Main(string[] args)
@@ -200,8 +202,102 @@ namespace ConsoleApp
             Button btna = new Button(20, 1, "Go to answers");
             btna.Clicked += OnButtonAnswersClicked;
             win.Add(btnu, btna);
+            Rect frame = new Rect(4, 8, top.Frame.Width, 200);
+            if (questionRepository.GetTotalPages() < 1) 
+            {
+                List<string> list = new List<string>();
+                list.Add("Data Base is empty");
+                questionsListView = new ListView(frame, list);
+            }
+            else
+            {
+                questionsListView = new ListView(frame, questionRepository.GetPage(1));
+                questionsListView.OpenSelectedItem += OnOpenQuestion;
+            }
+            win.Add(questionsListView);
+
+            Button btn = new Button(1, 4, "Create new question");
+            btn.Clicked += OnCreateQuestionClicked;
+            win.Add(btn);
+            Button prew = new Button(5, 20, "Prew");
+            prew.Clicked += OnPrewQuestionsClicked;
+            page = new Label(14, 20, "1 ");
+            win.Add(prew, page);
+            Button next = new Button(20, 20, "Next");
+            next.Clicked += OnNextQuestionsClicked;
+            totalPages = new Label(17, 20, Convert.ToString(questionRepository.GetTotalPages()) + " ");
+            win.Add(next, totalPages);
             Application.Run();
         }
+        static void OnPrewQuestionsClicked()
+        {
+            int n = Int32.Parse(Convert.ToString(page.Text));
+            if (n > 1)
+            {
+                n--;
+                page.Text = Convert.ToString(n);
+                questionsListView.SetSource(questionRepository.GetPage(n));
+            }
+        }
+        static void OnNextQuestionsClicked()
+        {
+            int n = Int32.Parse(Convert.ToString(page.Text));
+            if (n < questionRepository.GetTotalPages())
+            {
+                n++;
+                page.Text = Convert.ToString(n);
+                questionsListView.SetSource(questionRepository.GetPage(n));
+            }
+        }
+        static void OnOpenQuestion(ListViewItemEventArgs args) 
+        {
+            Question question = (Question)args.Value;
+            OpenQuestionDialog dialog = new OpenQuestionDialog();
+            dialog.SetQuestion(question);
+            Application.Run(dialog);
+            if (dialog.deleted)
+            {
+                int pageNumber = Int32.Parse(Convert.ToString(page.Text));
+                questionRepository.DeleteById(question.id);
+                int total = questionRepository.GetTotalPages();
+                if (pageNumber > total) pageNumber = total;
+                if (total < 1) 
+                {
+                    List<string> list = new List<string>();
+                    list.Add("Data Base is empty");
+                    questionsListView.SetSource(list);
+                }
+                else
+                {
+                    questionsListView.SetSource(questionRepository.GetPage(pageNumber));
+                }
+                page.Text = Convert.ToString(pageNumber);
+                totalPages.Text = Convert.ToString(total);
+            }
+            if (dialog.updated)
+            {
+                int questionId = question.id;
+                int pageNumber = questionId/10;
+                if(questionId % 10 != 0) pageNumber++;
+                question = dialog.GetQuestion();
+                questionRepository.Update(questionId, question);
+                questionsListView.SetSource(questionRepository.GetPage(pageNumber));
+            }
+        }
+        static void OnCreateQuestionClicked()
+        {
+            CreateQuestionDialog dialog = new CreateQuestionDialog();
+            Application.Run(dialog);
+            if(!dialog.canceled)
+            {
+                Question question = dialog.GetQuestion();
+                questionRepository.Insert(question);
+                questionsListView.SetSource(questionRepository.GetPage(questionRepository.GetTotalPages()));
+                page.Text = Convert.ToString(questionRepository.GetTotalPages());
+                totalPages.Text = Convert.ToString(questionRepository.GetTotalPages());
+            }
+        }
+
         static void OnButtonAnswersClicked()
         {
             Toplevel top = Application.Top;
@@ -229,8 +325,102 @@ namespace ConsoleApp
             Button btnq = new Button(20, 1, "Go to questions");
             btnq.Clicked += OnButtonQuestionsClicked;
             win.Add(btnu, btnq);
+            Rect frame = new Rect(4, 8, top.Frame.Width, 200);
+            if (answerRepository.GetTotalPages() < 1) 
+            {
+                List<string> list = new List<string>();
+                list.Add("Data Base is empty");
+                answersListView = new ListView(frame, list);
+            }
+            else
+            {
+                answersListView = new ListView(frame, answerRepository.GetPage(1));
+                answersListView.OpenSelectedItem += OnOpenAnswer;
+            }
+            win.Add(answersListView);
+
+            Button btn = new Button(1, 4, "Create new answer");
+            btn.Clicked += OnCreateAnswerClicked;
+            win.Add(btn);
+            Button prew = new Button(5, 20, "Prew");
+            prew.Clicked += OnPrewAnswersClicked;
+            page = new Label(14, 20, "1 ");
+            win.Add(prew, page);
+            Button next = new Button(20, 20, "Next");
+            next.Clicked += OnNextAnswersClicked;
+            totalPages = new Label(17, 20, Convert.ToString(answerRepository.GetTotalPages()) + " ");
+            win.Add(next, totalPages);
             Application.Run();
         }
+        static void OnPrewAnswersClicked()
+        {
+            int n = Int32.Parse(Convert.ToString(page.Text));
+            if (n > 1)
+            {
+                n--;
+                page.Text = Convert.ToString(n);
+                answersListView.SetSource(answerRepository.GetPage(n));
+            }
+        }
+        static void OnNextAnswersClicked() 
+        {
+            int n = Int32.Parse(Convert.ToString(page.Text));
+            if (n < answerRepository.GetTotalPages())
+            {
+                n++;
+                page.Text = Convert.ToString(n);
+                answersListView.SetSource(answerRepository.GetPage(n));
+            }
+        }
+        static void OnOpenAnswer(ListViewItemEventArgs args)
+        {
+            Answer answer = (Answer)args.Value;
+            OpenAnswerDialog dialog = new OpenAnswerDialog();
+            dialog.SetAnswer(answer);
+            Application.Run(dialog);
+            if (dialog.deleted)
+            {
+                int pageNumber = Int32.Parse(Convert.ToString(page.Text));
+                answerRepository.DeleteById(answer.id);
+                int total = answerRepository.GetTotalPages();
+                if (pageNumber > total) pageNumber = total;
+                if (total < 1) 
+                {
+                    List<string> list = new List<string>();
+                    list.Add("Data Base is empty");
+                    answersListView.SetSource(list);
+                }
+                else
+                {
+                    answersListView.SetSource(answerRepository.GetPage(pageNumber));
+                }
+                page.Text = Convert.ToString(pageNumber);
+                totalPages.Text = Convert.ToString(total);
+            }
+            if (dialog.updated)
+            {
+                int answerId = answer.id;
+                int pageNumber = answerId/10;
+                if(answerId % 10 != 0) pageNumber++;
+                answer = dialog.GetAnswer();
+                answerRepository.Update(answerId, answer);
+                answersListView.SetSource(answerRepository.GetPage(pageNumber));
+           }
+        }
+        static void OnCreateAnswerClicked()
+        {
+            CreateAnswerDialog dialog = new CreateAnswerDialog();
+            Application.Run(dialog);
+            if(!dialog.canceled)
+            {
+                Answer answer = dialog.GetAnswer();
+                answerRepository.Insert(answer);
+                answersListView.SetSource(answerRepository.GetPage(answerRepository.GetTotalPages()));
+                page.Text = Convert.ToString(answerRepository.GetTotalPages());
+                totalPages.Text = Convert.ToString(answerRepository.GetTotalPages());
+            }
+        }
+
         static void OnImportClicked()
         {
             ImportDialog dialog = new ImportDialog();

@@ -78,6 +78,22 @@ public class QuestionRepository
         connection.Close(); 
         return n;
     }
+    public int Update(int id, Question question)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"UPDATE questions 
+        SET user_id = $user_id, title = $title, text = $text, created = $created
+        WHERE id = $id";
+        command.Parameters.AddWithValue("$user_id", question.userId);
+        command.Parameters.AddWithValue("$title", question.title);   
+        command.Parameters.AddWithValue("$text", question.text);   
+        command.Parameters.AddWithValue("$created", question.created);
+        command.Parameters.AddWithValue("$id", id);
+        int n = command.ExecuteNonQuery();
+        connection.Close(); 
+        return n;
+    }
     public Question[] GetAllQuestions(int id)
     {
         connection.Open();
@@ -153,5 +169,41 @@ public class QuestionRepository
         reader.Close();
         connection.Close();
         return list.Count;
+    }
+    public int GetTotalPages() 
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT COUNT(*) FROM questions";
+        int count = Convert.ToInt32(command.ExecuteScalar());
+        connection.Close();
+        int pages = count/10;
+        if (count%10 != 0) pages++;
+        return pages;
+    }
+    public List<Question> GetPage(int pageNumber) 
+    {
+        int pages = GetTotalPages();
+        if (pageNumber > pages || pageNumber <= 0)
+        {
+            return null;
+        }
+        else
+        {
+            List<Question> list = new List<Question>();
+            connection.Open();
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM questions LIMIT 10 OFFSET $offset";
+            command.Parameters.AddWithValue("$offset", 10 * (pageNumber - 1));
+            SqliteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Question question = new Question(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), reader.GetString(3), DateTime.Parse(reader.GetString(4)), null, null);
+                list.Add(question);
+            }
+            reader.Close();
+            connection.Close();
+            return list;
+        }
     }
 }

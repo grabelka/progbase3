@@ -67,13 +67,29 @@ public class AnswerRepository
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
         command.CommandText = @"UPDATE answers 
-        SET q_id, text, created, pinned
+        SET q_id = $q_id, text = $text, created = $created, pinned = $pinned
         WHERE id = $id";
         command.Parameters.AddWithValue("$q_id", answer.questionId);
         command.Parameters.AddWithValue("$text", answer.text);   
         command.Parameters.AddWithValue("$created", answer.created);
         command.Parameters.AddWithValue("$pinned", answer.pinned);
         command.Parameters.AddWithValue("$id", answer.id);
+        int n = command.ExecuteNonQuery();
+        connection.Close(); 
+        return n;
+    }
+    public int Update(int id, Answer answer)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"UPDATE answers 
+        SET q_id = $q_id, text = $text, created = $created, pinned = $pinned
+        WHERE id = $id";
+        command.Parameters.AddWithValue("$q_id", answer.questionId);
+        command.Parameters.AddWithValue("$text", answer.text);   
+        command.Parameters.AddWithValue("$created", answer.created);
+        command.Parameters.AddWithValue("$pinned", answer.pinned);
+        command.Parameters.AddWithValue("$id", id);
         int n = command.ExecuteNonQuery();
         connection.Close(); 
         return n;
@@ -95,5 +111,41 @@ public class AnswerRepository
         reader.Close();
         connection.Close();
         return answers;
+    }
+    public int GetTotalPages() 
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT COUNT(*) FROM answers";
+        int count = Convert.ToInt32(command.ExecuteScalar());
+        connection.Close();
+        int pages = count/10;
+        if (count%10 != 0) pages++;
+        return pages;
+    }
+    public List<Answer> GetPage(int pageNumber) 
+    {
+        int pages = GetTotalPages();
+        if (pageNumber > pages || pageNumber <= 0)
+        {
+            return null;
+        }
+        else
+        {
+            List<Answer> list = new List<Answer>();
+            connection.Open();
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM answers LIMIT 10 OFFSET $offset";
+            command.Parameters.AddWithValue("$offset", 10 * (pageNumber - 1));
+            SqliteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Answer answer = new Answer(Int32.Parse(reader.GetString(0)), Int32.Parse(reader.GetString(1)), reader.GetString(2), DateTime.Parse(reader.GetString(3)), reader.GetString(4), null);
+                list.Add(answer);
+            }
+            reader.Close();
+            connection.Close();
+            return list;
+        }
     }
 }
