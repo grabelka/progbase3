@@ -1,4 +1,5 @@
 using System;
+using ClassLibrary;
 using Terminal.Gui;
 
 public class OpenAnswerDialog : Dialog
@@ -71,7 +72,7 @@ public class OpenAnswerDialog : Dialog
         this.inputId.Text = answer.questionId.ToString();
         this.textView.Text = answer.text.ToString();
         this.created.Text = answer.created.ToShortDateString();
-        this.pinned.Text = answer.questionId.ToString();
+        this.pinned.Text = answer.pinned.ToString();
     }
     public Answer GetAnswer()
     {
