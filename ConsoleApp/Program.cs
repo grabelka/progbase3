@@ -2,10 +2,7 @@
 using ClassLibrary;
 using System.Collections.Generic;
 using Microsoft.Data.Sqlite;
-using System.Text;
-using System.IO;
 using Terminal.Gui;
-using static System.Console;
 
 namespace ConsoleApp
 {
@@ -16,6 +13,9 @@ namespace ConsoleApp
         static UserRepository userRepository = new UserRepository(connection);
         static QuestionRepository questionRepository = new QuestionRepository(connection);
         static AnswerRepository answerRepository = new AnswerRepository(connection);
+        static TextField inputLogin;
+        static TextField inputPass;
+        static User current;
         static ListView usersListView;
         static ListView questionsListView;
         static ListView answersListView;
@@ -23,11 +23,51 @@ namespace ConsoleApp
         static Label totalPages;
         static void Main(string[] args)
         {
-            User user = Autentification.Verify(userRepository, "top1", "1234");
-            
             Application.Init();
-            OnButtonUsersClicked();
+            Window win = new Window("Log In")
+            {
+                X = 0,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill() - 1
+            };
+            Application.Top.Add(win);
+            Button btnv = new Button(20, 15, "Verify");
+            btnv.Clicked += OnButtonVerifyClicked;
+            win.Add(btnv);
+            Button btnr = new Button(2, 1, "Registration");
+            btnr.Clicked += OnButtonRegClicked;
+            win.Add(btnr);
+            Label lLabel = new Label(2, 4, "Login: ");
+            inputLogin = new TextField(20, 4, 40, "");
+            win.Add(lLabel, inputLogin);
+            Label pLabel = new Label(2, 6, "Password: ");
+            inputPass = new TextField(20, 6, 40, "");
+            win.Add(pLabel, inputPass);
             Application.Run();
+        }
+        static void OnButtonRegClicked()
+        {
+            RegistrationDialog dialog = new RegistrationDialog();
+            Application.Run(dialog);
+            if (!dialog.canceled)
+            {
+                User user = dialog.GetUser();
+                if (userRepository.FindLogin(user.login) == null) 
+                {
+                    Autentification.Register(userRepository, user.name, user.login, user.isModerator, user.password);
+                }
+                else 
+                    MessageBox.Query("Error", "You can't use this login. It is already taken.", "Ok");
+            }
+        }
+        static void OnButtonVerifyClicked()
+        {
+            current = Autentification.Verify(userRepository, inputLogin.Text.ToString(), inputPass.Text.ToString());
+            if (current != null)
+                OnButtonUsersClicked();
+            else
+                MessageBox.Query("Error", "Wrong login or password", "Ok");
         }
         static void OnButtonUsersClicked()
         {
@@ -51,11 +91,12 @@ namespace ConsoleApp
                 Height = Dim.Fill() - 1
             };
             top.Add(menu, win);
+            Label userLabel = new Label(80, 1, $"You: {current.name}({current.login})" );
             Button btnq = new Button(1, 1, "Go to questions");
             btnq.Clicked += OnButtonQuestionsClicked;
             Button btna = new Button(20, 1, "Go to answers");
             btna.Clicked += OnButtonAnswersClicked;
-            win.Add(btnq, btna);
+            win.Add(btnq, btna, userLabel);
             Rect frame = new Rect(4, 8, top.Frame.Width, 200);
             if (userRepository.GetTotalPages() < 1) 
             {
@@ -174,11 +215,12 @@ namespace ConsoleApp
                 Height = Dim.Fill() - 1
             };
             top.Add(menu, win);
+            Label userLabel = new Label(80, 1, $"You: {current.name}({current.login})" );
             Button btnu = new Button(1, 1, "Go to users");
             btnu.Clicked += OnButtonUsersClicked;
             Button btna = new Button(20, 1, "Go to answers");
             btna.Clicked += OnButtonAnswersClicked;
-            win.Add(btnu, btna);
+            win.Add(btnu, btna, userLabel);
             Rect frame = new Rect(4, 8, top.Frame.Width, 200);
             if (questionRepository.GetTotalPages() < 1) 
             {
@@ -297,11 +339,12 @@ namespace ConsoleApp
                 Height = Dim.Fill() - 1
             };
             top.Add(menu, win);
+            Label userLabel = new Label(80, 1, $"You: {current.name}({current.login})" );
             Button btnu = new Button(1, 1, "Go to users");
             btnu.Clicked += OnButtonUsersClicked;
             Button btnq = new Button(20, 1, "Go to questions");
             btnq.Clicked += OnButtonQuestionsClicked;
-            win.Add(btnu, btnq);
+            win.Add(btnu, btnq, userLabel);
             Rect frame = new Rect(4, 8, top.Frame.Width, 200);
             if (answerRepository.GetTotalPages() < 1) 
             {

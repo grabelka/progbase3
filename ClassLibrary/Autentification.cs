@@ -19,7 +19,9 @@ namespace ClassLibrary
                 id = userRepository.Insert(new User(0, name, login, isModerator, hash, null));
             }
             catch (System.Exception)
-            {}
+            {
+                Console.WriteLine("You can't use this login. It is already taken.");
+            }
             return id;
         }
         public static User Verify(UserRepository userRepository, string login, string pass)

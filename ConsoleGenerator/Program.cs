@@ -69,15 +69,8 @@ namespace ConsoleGenerator
                     WriteLine("Wrong user's paramethers");
                     return;
                 }
-                try
-                {
-                    User user = new User(0, userFields[0], userFields[1], userFields[2], userFields[3], new Question[0]);
-                    WriteLine($"User was added with id [{userRepository.Insert(user)}]");
-                }
-                catch (System.Exception)
-                {
-                    WriteLine("You can't use this login.");
-                }
+                int id = Autentification.Register(userRepository, userFields[0], userFields[1], userFields[2], userFields[3]);
+                WriteLine($"User was added with id [{id}]");
             }
             else if(com[1] == "update")
             {
@@ -112,22 +105,15 @@ namespace ConsoleGenerator
                     for(int i = 0; i < n; i ++)
                     {
                         string login = "";
-                        for (int j = 0; j < r.Next(1, 6); j++)
+                        for (int j = 0; j < r.Next(1, 8); j++)
                         {
                             login += Convert.ToString((char)r.Next(97,123));
                         }
-                        for (int j = 0; j < r.Next(4); j++)
+                        for (int j = 0; j < r.Next(5); j++)
                         {
                             login += Convert.ToString(r.Next(0,10));
                         }
-                        try
-                        {
-                            userRepository.Insert(new User(0, names[r.Next(0,7)], login, moderator[r.Next(0,3)], passwords[r.Next(0,10)], new Question[0]));
-                        }
-                        catch (System.Exception)
-                        {
-                            Console.WriteLine($"iteration [{i}]: This login is taken.");
-                        }
+                        Autentification.Register(userRepository, names[r.Next(0,7)], login, moderator[r.Next(0,3)], passwords[r.Next(0,10)]);
                     }
                 }
                 else WriteLine(com[2] + " isn't a number");
