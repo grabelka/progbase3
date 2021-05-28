@@ -25,7 +25,7 @@ public class RegistrationDialog : Dialog
         Label pLabel = new Label(2, 6, "Password: ");
         this.inputPass = new TextField(20, 6, 40, "");
         this.Add(pLabel, inputPass);
-        this.isModerator = new CheckBox(2, 8, "Is moderator: ");
+        this.isModerator = new CheckBox(2, 8, "Moderator mode");
         this.Add(isModerator);
     }
     public User GetUser()

@@ -158,7 +158,7 @@ namespace ClassLibrary
         {
             connection.Open();
             SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM questions WHERE created > $start AND created < $end";
+            command.CommandText = @"SELECT * FROM questions, answers WHERE questions.id = answers.q_id AND questions.created > $start AND questions.created < $end";
             command.Parameters.AddWithValue("$start", start);
             command.Parameters.AddWithValue("$end", end);
             SqliteDataReader reader = command.ExecuteReader();
