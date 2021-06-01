@@ -1,13 +1,20 @@
 ﻿using System;
+using ClassLibrary;
+using Microsoft.Data.Sqlite;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Text;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace ConsoleServer
 {
     class Program
     {
+        static string dbPath = @"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\data.db";
+        static SqliteConnection connection = new SqliteConnection($"Data Source={dbPath}");
+        static UserRepository userRepository = new UserRepository(connection);
         static void Main(string[] args)
         {
             IPAddress ipAddress = IPAddress.Loopback; 
@@ -53,15 +60,36 @@ namespace ConsoleServer
                 int bytesRec = handler.Receive(bytes);
                 
                 string data = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                if (data == "")
-                {   
-                    handler.Close();
-                    return;
-                }
                 Console.WriteLine($"Get: '{data}'");
-
-                byte[] msg = Encoding.ASCII.GetBytes(data);
-                int bytesSent = handler.Send(msg);
+                XmlSerializer ser = new XmlSerializer(typeof(ExportUser));
+                StringReader reader = new StringReader(data);
+                ExportUser user = (ExportUser)ser.Deserialize(reader);
+                if(user.command == "registration")
+                {
+                    bool returnData;
+                    if (userRepository.FindLogin(user.login) == null) 
+                    {
+                        returnData = true;
+                        Autentification.Register(userRepository, user.name, user.login, user.isModerator, user.password);
+                    }
+                    else 
+                        returnData = false;
+                    reader.Close();
+                    byte[] msg = Encoding.ASCII.GetBytes(returnData.ToString());
+                    int bytesSent = handler.Send(msg);
+                }
+                if(user.command == "verification")
+                {
+                    bool returnData = true;
+                    User current = Autentification.Verify(userRepository, user.login, user.password);
+                    if (current == null) 
+                    {
+                        returnData = false;
+                    }
+                    reader.Close();
+                    byte[] msg = Encoding.ASCII.GetBytes(returnData.ToString());
+                    int bytesSent = handler.Send(msg);
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ using ClassLibrary;
 using System.Collections.Generic;
 using Microsoft.Data.Sqlite;
 using Terminal.Gui;
+using System.Xml.Serialization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -17,6 +18,10 @@ namespace ConsoleApp
         static UserRepository userRepository = new UserRepository(connection);
         static QuestionRepository questionRepository = new QuestionRepository(connection);
         static AnswerRepository answerRepository = new AnswerRepository(connection);
+        static string searchFilter = "";
+        static TextField searchUser;
+        static TextField searchQuestion;
+        static TextField searchAnswer;
         static TextField inputLogin;
         static TextField inputPass;
         static User current;
@@ -30,23 +35,6 @@ namespace ConsoleApp
         static IPEndPoint remoteEP = new IPEndPoint(ipAddress, 3000);
         static void Main(string[] args)
         {
-            try
-            {
-                sender.Connect(remoteEP);
-
-                Console.WriteLine("Socket connected to {0}", sender.RemoteEndPoint.ToString());
-
-                ProcessWhileConnected(sender);
-
-                // Release the socket.  
-                //sender.Shutdown(SocketShutdown.Both);
-                sender.Close();
-
-            }
-            catch (Exception)
-            {
-                //Console.WriteLine("Unexpected exception : {0}", e.ToString());
-            }
             Application.Init();
             Window win = new Window("Log In")
             {
@@ -56,6 +44,15 @@ namespace ConsoleApp
                 Height = Dim.Fill() - 1
             };
             Application.Top.Add(win);
+            try
+            {
+                sender.Connect(remoteEP);
+            }
+            catch (Exception)
+            {
+                MessageBox.ErrorQuery("Error", "Can't connect to the server.", "Ok");
+                OnExit();
+            }
             Button btnv = new Button(20, 15, "Verify");
             btnv.Clicked += OnButtonVerifyClicked;
             win.Add(btnv);
@@ -69,40 +66,6 @@ namespace ConsoleApp
             inputPass = new TextField(20, 6, 40, "");
             win.Add(pLabel, inputPass);
             Application.Run();
-        }
-        static void ProcessWhileConnected(Socket sender)
-        {
-            // Encode the data string into a byte array. 
-            //while (true)
-            //{
-                try
-                {
-                    //Console.WriteLine("Send your message ");
-                    string input = "Hello from App";//Console.ReadLine();
-                    byte[] msg = Encoding.ASCII.GetBytes(input);
-
-                    // Send the data through the socket.  
-                    Console.WriteLine("Sending: " + input);
-                    if (input == "Exit")
-                    {
-                        //sender.Close();
-                        //break;
-                    }
-                    int bytesSent = sender.Send(msg);
-
-                    byte[] bytes = new byte[1024];  // buffer
-                    int bytesRec = sender.Receive(bytes);
-                    Console.WriteLine("Server send: " + Encoding.ASCII.GetString(bytes, 0, bytesRec));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Unexpected exception : {0}", e.ToString());
-                }
-                //byte[] bytes = new byte[1024];
-                //int bytesRec = sender.Receive(bytes);
-                //string message = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                //Console.WriteLine("Get:\n", message);
-            //}
         }
         static void OnButtonRegClicked()
         {
@@ -118,9 +81,27 @@ namespace ConsoleApp
                 if (!dialog.canceled)
                 {
                     User user = dialog.GetUser();
-                    if (userRepository.FindLogin(user.login) == null) 
+                    ExportUser export = new ExportUser("registration", user);
+                    XmlSerializer ser = new XmlSerializer(typeof(ExportUser));
+                    StringWriter writer = new StringWriter();
+                    ser.Serialize(writer, export);
+                    writer.Close();
+                    try
                     {
-                        Autentification.Register(userRepository, user.name, user.login, user.isModerator, user.password);
+                        byte[] msg = Encoding.ASCII.GetBytes(writer.ToString());
+
+                        int bytesSent = sender.Send(msg);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.ErrorQuery("Error", "Oops! Something went wrong", "Ok");
+                    }
+                    byte[] bytes = new byte[1024];
+                    int bytesRec = sender.Receive(bytes);
+                    string message = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    if (bool.Parse(message)) 
+                    {
+                        MessageBox.Query("Message", "You were registered!", "Ok");
                     }
                     else 
                         MessageBox.Query("Error", "You can't use this login. It is already taken.", "Ok");
@@ -134,9 +115,28 @@ namespace ConsoleApp
                 MessageBox.ErrorQuery("Error", "DataBase not found.", "Ok");
                 Application.RequestStop();
             }
-            current = Autentification.Verify(userRepository, inputLogin.Text.ToString(), inputPass.Text.ToString());
-            if (current != null)
+            ExportUser export = new ExportUser("verification", new User(0, "", inputLogin.Text.ToString(), "", inputPass.Text.ToString(), null));
+            XmlSerializer ser = new XmlSerializer(typeof(ExportUser));
+            StringWriter writer = new StringWriter();
+            ser.Serialize(writer, export);
+            writer.Close();
+            try
+            {
+                byte[] msg = Encoding.ASCII.GetBytes(writer.ToString());
+                int bytesSent = sender.Send(msg);
+            }
+            catch (Exception)
+            {
+                MessageBox.ErrorQuery("Error", "Oops! Something went wrong", "Ok");
+            }
+            byte[] bytes = new byte[1024];
+            int bytesRec = sender.Receive(bytes);
+            string message = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+            if (bool.Parse(message)) 
+            {
+                current = userRepository.FindLogin(inputLogin.Text.ToString());
                 OnButtonUsersClicked();
+            }
             else
                 MessageBox.Query("Error", "Wrong login or password", "Ok");
         }
@@ -171,6 +171,9 @@ namespace ConsoleApp
             Button btna = new Button(20, 1, "Go to answers");
             btna.Clicked += OnButtonAnswersClicked;
             win.Add(btnq, btna, btnex, userLabel);
+            searchUser = new TextField(4, 6, 20, "");
+            searchUser.KeyPress += OnSearchUser;
+            win.Add(searchUser);
             Rect frame = new Rect(4, 8, top.Frame.Width, 200);
             if (userRepository.GetTotalPages() < 1) 
             {
@@ -198,6 +201,15 @@ namespace ConsoleApp
             win.Add(next, totalPages);
             Application.Run();
         }
+        static void OnSearchUser(View.KeyEventEventArgs args)
+        {
+            if(args.KeyEvent.Key == Key.Enter)
+            {
+                searchFilter = searchUser.Text.ToString();
+                usersListView.SetSource(userRepository.GetSearchPage(1, searchFilter));
+                totalPages.Text = Convert.ToString(userRepository.GetSearchUsers(searchFilter).Count/10 + 1);
+            }
+        }
         static void OnPrewUsersClicked()
         {
             int n = Int32.Parse(Convert.ToString(page.Text));
@@ -205,7 +217,7 @@ namespace ConsoleApp
             {
                 n--;
                 page.Text = Convert.ToString(n);
-                usersListView.SetSource(userRepository.GetPage(n));
+                usersListView.SetSource(userRepository.GetSearchPage(n, searchFilter));
             }
         }
         static void OnNextUsersClicked()
@@ -318,6 +330,9 @@ namespace ConsoleApp
             Button btna = new Button(20, 1, "Go to answers");
             btna.Clicked += OnButtonAnswersClicked;
             win.Add(btnu, btna, btnex, userLabel);
+            searchQuestion = new TextField(4, 6, 20, "");
+            searchQuestion.KeyPress += OnSearchUser;
+            win.Add(searchQuestion);
             Rect frame = new Rect(4, 8, top.Frame.Width, 200);
             if (questionRepository.GetTotalPages() < 1) 
             {
@@ -470,6 +485,9 @@ namespace ConsoleApp
             Button btnq = new Button(20, 1, "Go to questions");
             btnq.Clicked += OnButtonQuestionsClicked;
             win.Add(btnu, btnq, btnex, userLabel);
+            searchAnswer = new TextField(4, 6, 20, "");
+            searchAnswer.KeyPress += OnSearchUser;
+            win.Add(searchAnswer);
             Rect frame = new Rect(4, 8, top.Frame.Width, 200);
             if (answerRepository.GetTotalPages() < 1) 
             {
@@ -620,8 +638,14 @@ namespace ConsoleApp
                 plt.PlotBar(xs, valuesB, label: "Pinned");
                 plt.PlotBar(xs, valuesA, label: "All");
                 plt.Legend();
-                plt.Title("Answers stats");
-                plt.SaveFig("AnswersStats.png");
+                plt.Title("Questions stats");
+                plt.SaveFig("QuestionsStats.png");
+                string s = File.ReadAllText(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\docs\StatsTeamplate.xml");
+                s = s.Replace("{\\start\\}",$"{dialog.start}");
+                s = s.Replace("{\\end\\}", $"{dialog.end}");
+                s = s.Replace("{\\all\\}", $"{all}");
+                s = s.Replace("{\\pinned\\}", $"{pinned}");
+                File.WriteAllText(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\docs\Stats.xml", s);
             }
         }
         static void OnExportClicked()
@@ -672,6 +696,7 @@ namespace ConsoleApp
         }
         static void OnExit()
         {
+            sender.Close();
             Application.RequestStop();
         }
     }

@@ -155,5 +155,61 @@ namespace ClassLibrary
                 return list;
             }
         }
+        public List<User> GetAll() 
+        {
+            List<User> list = new List<User>();
+            connection.Open();
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM users";
+            SqliteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                User user = new User(Int32.Parse(reader.GetString(0)), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), new Question[0]);
+                list.Add(user);
+            }
+            reader.Close();
+            connection.Close();
+            return list;
+        }
+        public List<User> GetSearchUsers(string filter) 
+        {
+            List<User> list = new List<User>();
+            List<User> all = GetAll();
+            if (string.IsNullOrEmpty(filter)) return all;
+            foreach (User item in all)
+            {
+                if(item.name.Contains(filter) || item.login.Contains(filter))
+                {
+                    list.Add(item);
+                }
+            }
+            return list;
+        }
+        public int GetSearchPages(string filter) 
+        {
+            int count = GetSearchUsers(filter).Count;
+            int pages = count/10;
+            if (count%10 != 0) pages++;
+            return pages;
+        }
+        public List<User> GetSearchPage(int pageNumber, string filter) 
+        {
+            int pages = GetSearchPages(filter);
+            if (pageNumber > pages || pageNumber <= 0)
+            {
+                return null;
+            }
+            else
+            {
+                List<User> list = new List<User>();
+                List<User> search = GetSearchUsers(filter);
+                int len = Math.Min(10, search.Count);
+                for(int i = 0; i < len; i++)
+                {
+                    list.Add(search[i]);
+                }
+                return list;
+            }
+        }
     }
 }
