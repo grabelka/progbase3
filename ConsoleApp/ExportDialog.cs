@@ -12,7 +12,7 @@ public class ExportDialog : Dialog
     DateField endDate;
     public ExportDialog()
     {
-        this.Title = "Import";
+        this.Title = "Export";
         startDate = new DateField(2, 2, System.DateTime.Now);
         endDate = new DateField(14, 2, System.DateTime.Now);
         Button btn = new Button(2, 0, "Choose directory");

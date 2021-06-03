@@ -80,14 +80,15 @@ namespace ConsoleServer
                 }
                 if(user.command == "verification")
                 {
-                    bool returnData = true;
+                    bool returnBool = true;
                     User current = Autentification.Verify(userRepository, user.login, user.password);
                     if (current == null) 
                     {
-                        returnData = false;
+                        returnBool = false;
                     }
                     reader.Close();
-                    byte[] msg = Encoding.ASCII.GetBytes(returnData.ToString());
+                    string returnData = returnBool.ToString() + "#" + current.name + "#" + current.isModerator;
+                    byte[] msg = Encoding.ASCII.GetBytes(returnData);
                     int bytesSent = handler.Send(msg);
                 }
             }

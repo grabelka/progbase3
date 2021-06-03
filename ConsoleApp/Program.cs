@@ -64,6 +64,7 @@ namespace ConsoleApp
             win.Add(lLabel, inputLogin);
             Label pLabel = new Label(2, 6, "Password: ");
             inputPass = new TextField(20, 6, 40, "");
+            inputPass.Secret = true;
             win.Add(pLabel, inputPass);
             Application.Run();
         }
@@ -131,10 +132,10 @@ namespace ConsoleApp
             }
             byte[] bytes = new byte[1024];
             int bytesRec = sender.Receive(bytes);
-            string message = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-            if (bool.Parse(message)) 
+            string[] message = Encoding.ASCII.GetString(bytes, 0, bytesRec).Split('#');
+            if (bool.Parse(message[0])) 
             {
-                current = userRepository.FindLogin(inputLogin.Text.ToString());
+                current = new User(0, message[1], inputLogin.Text.ToString(), message[2], inputPass.Text.ToString(), null);
                 OnButtonUsersClicked();
             }
             else
@@ -687,6 +688,7 @@ namespace ConsoleApp
             win.Add(lLabel, inputLogin);
             Label pLabel = new Label(2, 6, "Password: ");
             inputPass = new TextField(20, 6, 40, "");
+            inputPass.Secret = true;
             win.Add(pLabel, inputPass);
             Application.Run();
         }
