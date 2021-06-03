@@ -87,22 +87,6 @@ namespace ClassLibrary
             connection.Close(); 
             return n;
         }
-        public int Update(User user)
-        {
-            connection.Open();
-            SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"UPDATE users 
-            SET name = $name, login = $login moderator = $moderator, password = $password
-            WHERE id = $id";
-            command.Parameters.AddWithValue("$name", user.name);
-            command.Parameters.AddWithValue("$login", user.login);
-            command.Parameters.AddWithValue("$moderator", user.isModerator); 
-            command.Parameters.AddWithValue("$password", user.password);
-            command.Parameters.AddWithValue("$id", user.id);
-            int n = command.ExecuteNonQuery();
-            connection.Close(); 
-            return n;
-        }
         public int Update(int userId, User user)
         {
             connection.Open();

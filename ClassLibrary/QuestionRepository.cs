@@ -64,22 +64,6 @@ namespace ClassLibrary
             connection.Close(); 
             return n;
         }
-        public int Update(Question question)
-        {
-            connection.Open();
-            SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"UPDATE questions 
-            SET user_id = $user_id, title = $title, text = $text, created = $created
-            WHERE id = $id";
-            command.Parameters.AddWithValue("$user_id", question.userId);
-            command.Parameters.AddWithValue("$title", question.title);   
-            command.Parameters.AddWithValue("$text", question.text);   
-            command.Parameters.AddWithValue("$created", question.created);
-            command.Parameters.AddWithValue("$id", question.id);
-            int n = command.ExecuteNonQuery();
-            connection.Close(); 
-            return n;
-        }
         public int Update(int id, Question question)
         {
             connection.Open();
