@@ -8,7 +8,7 @@ namespace ConsoleGenerator
 {
     class Program
     {
-        static string dbPath = @"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\data.db";
+        static string dbPath = @"..\..\data\data.db";
         static SqliteConnection connection = new SqliteConnection($"Data Source={dbPath}");
         static UserRepository userRepository = new UserRepository(connection);
         static QuestionRepository questionRepository = new QuestionRepository(connection);
@@ -81,8 +81,8 @@ namespace ConsoleGenerator
                     DateTime minDt = Convert.ToDateTime(dt[0]);
                     DateTime maxDt = Convert.ToDateTime(dt[1]);
                     Random r = new Random();
-                    string [] titles = File.ReadAllLines(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\generator\title.txt");
-                    string [] texts = File.ReadAllLines(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\generator\text.txt");
+                    string [] titles = File.ReadAllLines(@"..\..\data\generator\title.txt");
+                    string [] texts = File.ReadAllLines(@"..\..\data\generator\text.txt");
                     int range = ((TimeSpan)(maxDt - minDt)).Days;
                     for(int i = 0; i < n; i ++)
                     {
@@ -111,7 +111,7 @@ namespace ConsoleGenerator
                     DateTime minDt = Convert.ToDateTime(dt[0]);
                     DateTime maxDt = Convert.ToDateTime(dt[1]);
                     Random r = new Random();
-                    string [] answers = File.ReadAllLines(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\generator\answer.txt");
+                    string [] answers = File.ReadAllLines(@"..\..\data\generator\answer.txt");
                     int range = ((TimeSpan)(maxDt - minDt)).Days;
                     for(int i = 0; i < n; i ++)
                     {

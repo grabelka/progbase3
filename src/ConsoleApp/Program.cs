@@ -13,7 +13,7 @@ namespace ConsoleApp
 {
     class Program
     {
-        static string dbPath = @"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\data.db";
+        static string dbPath = @"..\..\data\data.db";
         static SqliteConnection connection = new SqliteConnection($"Data Source={dbPath}");
         static UserRepository userRepository = new UserRepository(connection);
         static QuestionRepository questionRepository = new QuestionRepository(connection);
@@ -641,12 +641,12 @@ namespace ConsoleApp
                 plt.Legend();
                 plt.Title("Questions stats");
                 plt.SaveFig("QuestionsStats.png");
-                string s = File.ReadAllText(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\docs\StatsTeamplate.xml");
+                string s = File.ReadAllText(@"..\..\docs\StatsTeamplate.xml");
                 s = s.Replace("{\\start\\}",$"{dialog.start}");
                 s = s.Replace("{\\end\\}", $"{dialog.end}");
                 s = s.Replace("{\\all\\}", $"{all}");
                 s = s.Replace("{\\pinned\\}", $"{pinned}");
-                File.WriteAllText(@"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\docs\Stats.xml", s);
+                File.WriteAllText(@"..\..\docs\Stats.xml", s);
             }
         }
         static void OnExportClicked()

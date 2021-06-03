@@ -12,7 +12,7 @@ namespace ConsoleServer
 {
     class Program
     {
-        static string dbPath = @"C:\Users\nasty.DESKTOP-UTJ8J96\OneDrive\Desktop\progbase3\data\data.db";
+        static string dbPath = @"..\..\data\data.db";
         static SqliteConnection connection = new SqliteConnection($"Data Source={dbPath}");
         static UserRepository userRepository = new UserRepository(connection);
         static void Main(string[] args)
