@@ -31,7 +31,7 @@ public class ExportDialog : Dialog
         Application.Run(dialog);
         if(!dialog.Canceled) path = Convert.ToString(dialog.FilePath);
         string[] buf = Convert.ToString(startDate.Text).Split('/');
-        start = buf[2] + "-" + buf[0] + "-" + buf[1];
+        start = buf[2] + "-" + Int32.Parse(buf[0]).ToString() + "-" + buf[1];
         buf = Convert.ToString(endDate.Text).Split('/');
         end = buf[2] + "-" + buf[0] + "-" + buf[1];
     }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RootAnswers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <answers>
+    <ExportAnswer>
+      <id>123</id>
+      <questionId>35</questionId>
+      <text>When you use pageChange an Ajax request will be made to that url and it will be loaded only the c...</text>
+      <created>2021-03-02T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>124</id>
+      <questionId>12</questionId>
+      <text>You have not applied security may be at number of places. 1. File permissions, folder permissions...</text>
+      <created>2021-03-24T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>125</id>
+      <questionId>14</questionId>
+      <text>&lt;code&gt;rtb.Text += labName + collectionDate + Environment.NewLine; &lt;/code&gt;&lt;/p&gt; &lt;p...</text>
+      <created>2021-03-23T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>126</id>
+      <questionId>39</questionId>
+      <text>The problem occured because the &lt;code&gt;scripts&lt;/code&gt; variable was set in a JSP through an attribu...</text>
+      <created>2019-10-16T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+    <ExportAnswer>
+      <id>127</id>
+      <questionId>40</questionId>
+      <text>The problem occured because the &lt;code&gt;scripts&lt;/code&gt; variable was set in a JSP through an attribu...</text>
+      <created>2018-05-19T00:00:00</created>
+      <pinned>yes</pinned>
+    </ExportAnswer>
+  </answers>
+</RootAnswers>

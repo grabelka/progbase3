@@ -277,7 +277,10 @@ namespace ConsoleApp
                     MessageBox.Query("Error", "Wrong input", "Ok");
                     return;
                 }
-                userRepository.Update(userId, user);
+                if(userRepository.FindLogin(user.login) == null)
+                    userRepository.Update(userId, user);
+                else
+                    MessageBox.Query("Error","Wrong data", "Ok");
                 usersListView.SetSource(userRepository.GetPage(pageNumber));
             }
         }
@@ -608,18 +611,18 @@ namespace ConsoleApp
             {
                 if (dialog.path != "")
                 {
-                    try
+                    if(!File.Exists(dialog.path + @"\questions.xml") || !File.Exists(dialog.path + @"\answers.xml"))
+                    {
+                        MessageBox.ErrorQuery("Error", "Files don`t exist", "Ok");
+                    }
+                    else
                     {
                         Import.Read(dialog.path + @"\questions.xml", dialog.path + @"\answers.xml", questionRepository, answerRepository);
-                    }
-                    catch
-                    {
-                        MessageBox.Query("Error", "Files don`t exist", "Ok");
                     }
                 }
                 else
                 {
-                    MessageBox.Query("Error", "Path was not selected", "Ok");
+                    MessageBox.ErrorQuery("Error", "Path was not selected", "Ok");
                 }
             }
 
@@ -640,13 +643,13 @@ namespace ConsoleApp
                 plt.PlotBar(xs, valuesA, label: "All");
                 plt.Legend();
                 plt.Title("Questions stats");
-                plt.SaveFig("QuestionsStats.png");
-                string s = File.ReadAllText(@"..\..\docs\StatsTeamplate.xml");
+                plt.SaveFig(@"..\..\data\QuestionsStats.png");
+                string s = File.ReadAllText(@"..\..\data\StatsTeamplate.xml");
                 s = s.Replace("{\\start\\}",$"{dialog.start}");
                 s = s.Replace("{\\end\\}", $"{dialog.end}");
                 s = s.Replace("{\\all\\}", $"{all}");
                 s = s.Replace("{\\pinned\\}", $"{pinned}");
-                File.WriteAllText(@"..\..\docs\Stats.xml", s);
+                File.WriteAllText(@"..\..\data\Stats.xml", s);
             }
         }
         static void OnExportClicked()

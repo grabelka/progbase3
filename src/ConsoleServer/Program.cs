@@ -60,6 +60,11 @@ namespace ConsoleServer
                 int bytesRec = handler.Receive(bytes);
                 
                 string data = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                if(data == "")
+                {
+                    Environment.Exit(0);
+                    Console.WriteLine("Server was stopped");
+                }
                 Console.WriteLine($"Get: '{data}'");
                 XmlSerializer ser = new XmlSerializer(typeof(ExportUser));
                 StringReader reader = new StringReader(data);
@@ -82,12 +87,17 @@ namespace ConsoleServer
                 {
                     bool returnBool = true;
                     User current = Autentification.Verify(userRepository, user.login, user.password);
+                    string returnData = "";
                     if (current == null) 
                     {
                         returnBool = false;
+                        returnData = returnBool.ToString();
+                    }
+                    else
+                    {
+                        returnData = returnBool.ToString() + "#" + current.name + "#" + current.isModerator;
                     }
                     reader.Close();
-                    string returnData = returnBool.ToString() + "#" + current.name + "#" + current.isModerator;
                     byte[] msg = Encoding.ASCII.GetBytes(returnData);
                     int bytesSent = handler.Send(msg);
                 }
